@@ -1,10 +1,16 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+
 const lessons = ref([]);
 const sortAttribute = ref("subject");
 const sortOrder = ref("asc");
 const searchQuery = ref("");
-
+const cart = ref([]);
+const showCart = ref(false);
+const toggleCheckout = () => { // [cite: 379]
+  showCart.value = !showCart.value;
+};
+//get lessons data (mocked for now) 
 const fetchLessons = async () => {
   try {
     lessons.value = [
@@ -20,7 +26,7 @@ const fetchLessons = async () => {
   }
 };
 
-// Search and Sort Logic [cite: 365, 390]
+// Search and Sort Logic
 const filteredLessons = computed(() => {
   let tempLessons = lessons.value.filter((lesson) => {
     return (
@@ -40,12 +46,39 @@ const filteredLessons = computed(() => {
   return tempLessons;
 });
 
+const addToCart = (lesson) => {
+  if (lesson.spaces > 0) { // [cite: 374]
+    lesson.spaces--;
+    cart.value.push(lesson);
+  }
+};
+
+const removeFromCart = (cartItem, index) => { // [cite: 381]
+  cartItem.spaces++;
+  cart.value.splice(index, 1);
+};
+
+
+
 onMounted(() => {
   fetchLessons();
 });
 </script>
 
 <template>
+    <header class="flex justify-between items-center mb-8 bg-white p-4 rounded shadow">
+      <h1 class="text-3xl font-bold text-blue-600">After School Club</h1>
+      <button 
+        @click="toggleCheckout"
+        :disabled="cart.length === 0 && !showCart"
+        class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+        <span v-if="showCart">Back to Lessons</span>
+        <span v-else>
+          <i class="fas fa-shopping-cart mr-2"></i> Cart ({{ cart.length }})
+        </span>
+      </button>
+    </header>
+<div v-if="!showCart">
     <div class="bg-white p-4 rounded shadow mb-6 flex flex-wrap gap-4 items-end">
         <div class="flex-1">
           <label class="block font-bold mb-1">Search:</label>
@@ -95,5 +128,6 @@ onMounted(() => {
           </button>
         </div>
       </div>
+</div>
 </template>
 
