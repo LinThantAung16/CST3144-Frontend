@@ -47,15 +47,24 @@ const filteredLessons = computed(() => {
 });
 
 const addToCart = (lesson) => {
-    if (lesson.spaces > 0) {
-        lesson.spaces--;
-        cart.value.push(lesson);
+  if (lesson.spaces > 0) {
+    lesson.spaces--; 
+    
+    const existingItem = cart.value.find(item => item.lesson.id === lesson.id);
+    
+    if (existingItem) {
+      existingItem.quantity++;
+    } else {
+      cart.value.push({ lesson: lesson, quantity: 1 });
     }
+  }
 };
 
 const removeFromCart = (cartItem, index) => {
-    cartItem.spaces++;
-    cart.value.splice(index, 1);
+    // cartItem.spaces++;
+    // cart.value.splice(index, 1);
+  cartItem.lesson.spaces += cartItem.quantity;
+  cart.value.splice(index, 1);
 };
 
 
@@ -134,14 +143,25 @@ onMounted(() => {
         <h2 class="text-2xl font-bold mb-4">Your Basket</h2>
         <div v-if="cart.length === 0" class="text-gray-500">Cart is empty.</div>
         <div v-for="(item, index) in cart" :key="index" class="bg-white p-4 rounded shadow mb-4 flex justify-between items-center">
-          <div>
-            <h3 class="font-bold text-lg">{{ item.subject }}</h3>
-            <p class="text-gray-600">{{ item.location }}</p>
-            <p class="font-bold">£{{ item.price }}</p>
+          <div class="flex-1">
+            <h3 class="font-bold text-lg">{{ item.lesson.subject }}</h3>
+            <p class="text-gray-600">{{ item.lesson.location }}</p>
+            <p class="font-bold">£{{ item.lesson.price }}</p>
           </div>
-          <button @click="removeFromCart(item, index)" class="text-red-500 hover:text-red-700 underline">Remove</button>
+
+
+          <div class="flex items-center gap-2 mr-6">
+             <span class="text-sm text-gray-500">Spaces:</span>
+             <span class="font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded">
+                {{ item.quantity }}
+             </span>
+          </div>
+
+          <button @click="removeFromCart(item, index)" class="text-red-500 hover:text-red-700 underline">
+            Remove
+          </button>
         </div>
       </div>
       </div>
-</div>
+  </div>
 </template>
