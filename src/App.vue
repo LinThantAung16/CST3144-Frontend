@@ -1,10 +1,10 @@
 <script setup>
-import Course from './components/Course.vue';
+import AfterSchoolHub from './components/AfterSchoolHub.vue';
 
 </script>
 
 <template>
 
-  <Course />  
+  <AfterSchoolHub />  
 </template>
 

@@ -7,6 +7,14 @@ const sortOrder = ref("asc");
 const searchQuery = ref("");
 const cart = ref([]);
 const showCart = ref(false);
+
+const checkoutForm = ref({
+  name: "",
+  phone: ""
+});
+
+
+
 const toggleCheckout = () => {
     showCart.value = !showCart.value;
 };
@@ -25,6 +33,60 @@ const fetchLessons = async () => {
         console.error("Error fetching lessons:", error);
     }
 };
+
+// Submit Order
+const submitOrder = async () => {
+  // 1. Flatten the grouped cart back into a list of IDs
+  const lessonIDs = [];
+  cart.value.forEach(item => {
+    // If quantity is 3, push the ID 3 times
+    for (let i = 0; i < item.quantity; i++) {
+      lessonIDs.push(item.lesson.id);
+    }
+  });
+
+  const newOrder = {
+    name: checkoutForm.value.name,
+    phone: checkoutForm.value.phone,
+    lessonIDs: lessonIDs,
+    spaces: lessonIDs.length
+  };
+
+  try {
+    // UNCOMMENT FOR LIVE SERVER
+    /*
+    await fetch(`${serverURL}/collection/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newOrder)
+    });
+
+    // Update spaces (PUT)
+    // We need to update every unique lesson in the cart
+    for (const item of cart.value) {
+       await fetch(`${serverURL}/collection/lessons/${item.lesson.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          // Send the new remaining spaces
+          body: JSON.stringify({ spaces: item.lesson.spaces }) 
+       });
+    }
+    */
+
+    alert("Order Submitted Successfully!");
+    
+    cart.value = []; // Clear cart
+    checkoutForm.value.name = "";
+    checkoutForm.value.phone = "";
+    
+  } catch (error) {
+    console.error("Error submitting order:", error);
+  }
+};
+
+
+
+
 
 // Search and Sort Logic
 const filteredLessons = computed(() => {
@@ -97,7 +159,7 @@ onMounted(() => {
 <template>
   <div class="container mx-auto p-6 bg-gray-100 min-h-screen font-sans">
     <header class="flex justify-between items-center mb-8 bg-white p-4 rounded shadow">
-        <h1 class="text-3xl font-bold text-blue-600">After School Club</h1>
+        <h1 class="text-3xl font-bold text-blue-600">After School Hub</h1>
         <button @click="toggleCheckout" :disabled="cart.length === 0 && !showCart"
             class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
             <span v-if="showCart">Back to Lessons</span>
@@ -200,6 +262,30 @@ onMounted(() => {
         </div>
 
       </div>
+
+      <!-- Checkout Form -->
+      <div class="w-full md:w-1/3 bg-white p-6 rounded shadow h-fit">
+        <h2 class="text-2xl font-bold mb-4">Checkout</h2>
+        
+        <div class="mb-4">
+          <label class="block mb-1">Name:</label>
+          <input v-model="checkoutForm.name" type="text" class="border p-2 rounded w-full">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block mb-1">Phone:</label>
+          <input v-model="checkoutForm.phone" type="text" class="border p-2 rounded w-full">
+        </div>
+
+        <button 
+          @click="submitOrder" 
+          :disabled="cart.length === 0"
+          class="w-full bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700 disabled:bg-gray-400 transition">
+          Checkout
+        </button>
+      
       </div>
+
+    </div>
   </div>
 </template>
