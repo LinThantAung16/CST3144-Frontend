@@ -33,6 +33,13 @@ const fetchLessons = async () => {
         console.error("Error fetching lessons:", error);
     }
 };
+//name and phone validation
+const isFormValid = computed(() => {
+  const nameRegex = /^[A-Za-z\s]+$/;
+  const phoneRegex = /^[0-9]+$/;
+  return nameRegex.test(checkoutForm.value.name) && phoneRegex.test(checkoutForm.value.phone);
+});
+
 
 // Submit Order
 const submitOrder = async () => {
@@ -53,26 +60,6 @@ const submitOrder = async () => {
   };
 
   try {
-    // UNCOMMENT FOR LIVE SERVER
-    /*
-    await fetch(`${serverURL}/collection/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newOrder)
-    });
-
-    // Update spaces (PUT)
-    // We need to update every unique lesson in the cart
-    for (const item of cart.value) {
-       await fetch(`${serverURL}/collection/lessons/${item.lesson.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          // Send the new remaining spaces
-          body: JSON.stringify({ spaces: item.lesson.spaces }) 
-       });
-    }
-    */
-
     alert("Order Submitted Successfully!");
     
     cart.value = []; // Clear cart
@@ -279,11 +266,15 @@ onMounted(() => {
 
         <button 
           @click="submitOrder" 
-          :disabled="cart.length === 0"
+          :disabled="!isFormValid || cart.length === 0"
           class="w-full bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700 disabled:bg-gray-400 transition">
           Checkout
         </button>
-      
+        
+        <p v-if="!isFormValid" class="text-red-500 text-sm mt-2">
+          * Name must be letters only.<br>* Phone must be numbers only.
+        </p>
+
       </div>
 
     </div>
