@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-
+const serverURL = "http://localhost:3001";
 const lessons = ref([]);
 const sortAttribute = ref("subject");
 const sortOrder = ref("asc");
@@ -18,10 +18,14 @@ const checkoutForm = ref({
 const toggleCheckout = () => {
     showCart.value = !showCart.value;
 };
-//get lessons data (mocked for now) 
+//fetch lesson from back end
 const fetchLessons = async () => {
     try {
-        lessons.value = [
+      const response = await fetch(`${serverURL}/lessons`);
+      const data = await response.json();
+      lessons.value = data;
+      if(lessons == null){
+           lessons.value = [
             { id: 101, subject: "Math", location: "London", price: 100, spaces: 5, icon: "fas fa-calculator" },
             { id: 102, subject: "English", location: "York", price: 80, spaces: 5, icon: "fas fa-book" },
             { id: 103, subject: "Music", location: "Bristol", price: 90, spaces: 5, icon: "fas fa-music" },
@@ -29,6 +33,8 @@ const fetchLessons = async () => {
             { id: 105, subject: "Art", location: "Oxford", price: 95, spaces: 5, icon: "fas fa-palette" },
             { id: 106, subject: "History", location: "London", price: 75, spaces: 5, icon: "fas fa-landmark" }
         ];
+      }
+       
     } catch (error) {
         console.error("Error fetching lessons:", error);
     }
